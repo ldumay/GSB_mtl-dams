@@ -49,12 +49,6 @@ public class GuiMainPanel extends JFrame {
 	private JTextField txtPraticienCoef;
 	private JTextField txtPraticienTypeCode;
 	private JTextField txtPraticienCP;
-	private JTextField textField_4;
-	private JTextField textField_5;
-	private JTextField textField_6;
-	private JTextField textField_7;
-	private JTextField textField_8;
-	private JTextField textField_9;
 
 	/**
 	 * Launch the application.
@@ -83,14 +77,21 @@ public class GuiMainPanel extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
 		final JPanel panelLog = new JPanel();
 		final JPanel panelMenu = new JPanel();
 		final JPanel panelAccueil = new JPanel();
 		final JPanel panelRapport = new JPanel();
 		final JPanel panelMedicaments = new JPanel();
-		final JPanel panelPraticiens = new JPanel();
 		final JPanel panelAutresVisiteurs = new JPanel();
+		final JPanel panelPraticiens = new JPanel();
+		
+		panelMenu.setVisible(false);
+		panelRapport.setVisible(false);
+		panelAccueil.setVisible(false);
+		panelMedicaments.setVisible(false);
+		panelPraticiens.setVisible(false);
+		panelAutresVisiteurs.setVisible(false);
+		panelLog.setVisible(true);
 		
 		panelLog.setBounds(10, 11, 914, 489);
 		contentPane.add(panelLog);
@@ -98,8 +99,13 @@ public class GuiMainPanel extends JFrame {
 		
 		JLabel lblConnexion = new JLabel("Connexion");
 		lblConnexion.setFont(new Font("Tahoma", Font.BOLD, 13));
-		lblConnexion.setBounds(798, 365, 106, 23);
+		lblConnexion.setBounds(798, 328, 106, 23);
 		panelLog.add(lblConnexion);
+		
+		JComboBox logType = new JComboBox();
+		logType.setModel(new DefaultComboBoxModel(new String[] {"Choisir un type", "Visiteur", "Praticien"}));
+		logType.setBounds(764, 362, 140, 20);
+		panelLog.add(logType);
 		
 		JLabel lblIdentifiant = new JLabel("Identifiant :");
 		lblIdentifiant.setBounds(741, 399, 64, 14);
@@ -196,7 +202,7 @@ public class GuiMainPanel extends JFrame {
 		JButton btnAnnuler = new JButton("Annuler");
 		btnAnnuler.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// RAZ des Input
+				// Modifications des Input
 				txtIdentifiant.setText("");
 				txtMotDePasse.setText("");
 			}
@@ -281,10 +287,6 @@ public class GuiMainPanel extends JFrame {
 		JButton btnLogOut = new JButton("D\u00E9connexion");
 		btnLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// RAZ des Input
-				txtIdentifiant.setText("");
-				txtMotDePasse.setText("");
-				// Nettoyage des Panel
 				panelMenu.setVisible(false);
 				panelRapport.setVisible(false);
 				panelAccueil.setVisible(false);
@@ -528,95 +530,20 @@ public class GuiMainPanel extends JFrame {
 		JButton btnPraticienSuivant = new JButton(">");
 		btnPraticienSuivant.setBounds(138, 363, 51, 23);
 		panelPraticiens.add(btnPraticienSuivant);
+		panelPraticiens.setVisible(false);
 		
 		panelAutresVisiteurs.setBounds(214, 11, 710, 489);
 		contentPane.add(panelAutresVisiteurs);
-		panelAutresVisiteurs.setLayout(null);
 		
 		JLabel lblTitleAutresVisiteurs = new JLabel("Autres Visiteurs");
 		lblTitleAutresVisiteurs.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblTitleAutresVisiteurs.setBounds(295, 5, 120, 19);
+		lblTitleAutresVisiteurs.setBounds(10, 11, 690, 24);
 		panelAutresVisiteurs.add(lblTitleAutresVisiteurs);
-		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setBounds(71, 87, 427, 20);
-		panelAutresVisiteurs.add(comboBox);
-		
-		JButton btnNewButton = new JButton("New button");
-		btnNewButton.setBounds(508, 86, 126, 23);
-		panelAutresVisiteurs.add(btnNewButton);
-		
-		JLabel lblNom = new JLabel("Nom :");
-		lblNom.setBounds(71, 133, 51, 14);
-		panelAutresVisiteurs.add(lblNom);
-		
-		textField_4 = new JTextField();
-		textField_4.setBounds(132, 130, 216, 20);
-		panelAutresVisiteurs.add(textField_4);
-		textField_4.setColumns(10);
-		
-		JLabel lblPrnom = new JLabel("Pr\u00E9nom :");
-		lblPrnom.setBounds(71, 178, 64, 14);
-		panelAutresVisiteurs.add(lblPrnom);
-		
-		textField_5 = new JTextField();
-		textField_5.setBounds(145, 175, 216, 20);
-		panelAutresVisiteurs.add(textField_5);
-		textField_5.setColumns(10);
-		
-		JLabel lblAdresse = new JLabel("Adresse :");
-		lblAdresse.setBounds(71, 223, 64, 14);
-		panelAutresVisiteurs.add(lblAdresse);
-		
-		textField_6 = new JTextField();
-		textField_6.setBounds(145, 220, 216, 20);
-		panelAutresVisiteurs.add(textField_6);
-		textField_6.setColumns(10);
-		
-		JLabel lblCp = new JLabel("CP :");
-		lblCp.setBounds(71, 264, 41, 14);
-		panelAutresVisiteurs.add(lblCp);
-		
-		textField_7 = new JTextField();
-		textField_7.setBounds(122, 261, 216, 20);
-		panelAutresVisiteurs.add(textField_7);
-		textField_7.setColumns(10);
-		
-		JLabel lblVille = new JLabel("Ville :");
-		lblVille.setBounds(71, 311, 46, 14);
-		panelAutresVisiteurs.add(lblVille);
-		
-		textField_8 = new JTextField();
-		textField_8.setBounds(132, 308, 216, 20);
-		panelAutresVisiteurs.add(textField_8);
-		textField_8.setColumns(10);
-		
-		JLabel lblSecteur = new JLabel("Secteur :");
-		lblSecteur.setBounds(71, 355, 64, 14);
-		panelAutresVisiteurs.add(lblSecteur);
-		
-		textField_9 = new JTextField();
-		textField_9.setBounds(145, 352, 216, 20);
-		panelAutresVisiteurs.add(textField_9);
-		textField_9.setColumns(10);
-		
-		JButton button_2 = new JButton("<");
-		button_2.setBounds(71, 409, 41, 23);
-		panelAutresVisiteurs.add(button_2);
-		
-		JLabel label_1 = new JLabel("00/00");
-		label_1.setBounds(122, 413, 46, 14);
-		panelAutresVisiteurs.add(label_1);
-		
-		JButton button_3 = new JButton(">");
-		button_3.setBounds(178, 409, 41, 23);
-		panelAutresVisiteurs.add(button_3);
-		panelAutresVisiteurs.setVisible(false);
-		panelPraticiens.setVisible(false);
 		
 		// Masquage
 		panelMenu.setVisible(false);
 		panelAccueil.setVisible(false);
+		panelAutresVisiteurs.setVisible(false);
 		// panelLog.setVisible(false);
 	}
 }
