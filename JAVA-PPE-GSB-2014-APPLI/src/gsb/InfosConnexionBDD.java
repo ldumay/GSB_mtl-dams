@@ -21,8 +21,8 @@ public class InfosConnexionBDD {
     	System.out.println("Connexion a la BDD");
         String indic = "-> ";
         
-        String[] infosConnexionBDD = InfosConnexionBDD.InfosConnexionBDD();
-		
+        // Méthode de récupération des information de connexion à la BDD
+		String[] infosConnexionBDD = InfosConnexionBDD.InfosConnexionBDD();
 		String BDD = infosConnexionBDD[0];
         String url = infosConnexionBDD[1];
         String user = infosConnexionBDD[2];

@@ -27,12 +27,13 @@ import java.util.Scanner;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JFormattedTextField;
+import javax.swing.JPasswordField;
 
 public class GuiMainPanel extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField txtIdentifiant;
-	private JTextField txtMotDePasse;
 	public String Identifiant;
 	public String MotDePasse;
 	private JTextField textField;
@@ -49,6 +50,7 @@ public class GuiMainPanel extends JFrame {
 	private JTextField txtPraticienCoef;
 	private JTextField txtPraticienTypeCode;
 	private JTextField txtPraticienCP;
+	private JPasswordField txtMotDePasse;
 
 	/**
 	 * Launch the application.
@@ -124,11 +126,6 @@ public class GuiMainPanel extends JFrame {
 		panelLog.add(txtIdentifiant);
 		txtIdentifiant.setColumns(10);
 		
-		txtMotDePasse = new JTextField();
-		txtMotDePasse.setBounds(815, 424, 89, 20);
-		panelLog.add(txtMotDePasse);
-		txtMotDePasse.setColumns(10);
-		
 		JButton btnValider = new JButton("Valider");
 		btnValider.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -146,7 +143,15 @@ public class GuiMainPanel extends JFrame {
 					String pilote = "com.mysql.jdbc.Driver";
 					try {
 						Class.forName(pilote);
-						Connection con = DriverManager.getConnection("jdbc:mysql://localhost/gsb","root","");
+						
+						// Méthode de récupération des information de connexion à la BDD
+						String[] infosConnexionBDD = InfosConnexionBDD.InfosConnexionBDD();
+						String BDD = infosConnexionBDD[0];
+				        String url = infosConnexionBDD[1];
+				        String user = infosConnexionBDD[2];
+				        String passwd = infosConnexionBDD[3];
+				        Connection con = DriverManager.getConnection(url, user, passwd);
+				        
 						Statement stmt = con.createStatement();
 				
 						ResultSet resultat = null;
@@ -188,7 +193,7 @@ public class GuiMainPanel extends JFrame {
 								panelAccueil.setVisible(true);
 							}
 							else{
-								JOptionPane.showMessageDialog(null,"Oups, quelques chose n'a pas fonctionner !\nVeulliez réessayé, SVP !", "Erreur de connexion", JOptionPane.WARNING_MESSAGE);
+								JOptionPane.showMessageDialog(null,"Oups, le mot de passe n'est pas correcte ! \n\n Assurez-vous d'entrer les 3 premières lettres du mois \n dans le mot de passe, tel que : XX-XXX-XX", "Erreur de connexion", JOptionPane.WARNING_MESSAGE);
 								// JOptionPane.showMessageDialog(null,txtMotDePasse.getText().length()+" et " +date_emb.length());
 							}
 						}
@@ -200,13 +205,18 @@ public class GuiMainPanel extends JFrame {
 					}
 			}
 		});
+		
+		txtMotDePasse = new JPasswordField();
+		txtMotDePasse.setToolTipText("");
+		txtMotDePasse.setBounds(815, 424, 89, 20);
+		panelLog.add(txtMotDePasse);
 		btnValider.setBounds(716, 455, 89, 23);
 		panelLog.add(btnValider);
 		
 		JButton btnAnnuler = new JButton("Annuler");
 		btnAnnuler.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// Modifications des Input
+				// Modifications des Input de Log
 				txtIdentifiant.setText("");
 				txtMotDePasse.setText("");
 			}
@@ -315,6 +325,10 @@ public class GuiMainPanel extends JFrame {
 		JButton btnLogOut = new JButton("D\u00E9connexion");
 		btnLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Modifications des Input de Log
+				txtIdentifiant.setText("");
+				txtMotDePasse.setText("");
+				
 				panelMenu.setVisible(false);
 				panelRapport.setVisible(false);
 				panelAccueil.setVisible(false);
