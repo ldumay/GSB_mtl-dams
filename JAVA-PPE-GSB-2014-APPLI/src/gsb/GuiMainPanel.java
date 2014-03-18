@@ -54,6 +54,10 @@ public class GuiMainPanel extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		// Vérification de la connexion avec la BDD
+		InfosConnexionBDD InfosConnexionBDD = new InfosConnexionBDD();
+		
+		// Démarrage de l'interface primaire de l'application
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -184,7 +188,7 @@ public class GuiMainPanel extends JFrame {
 								panelAccueil.setVisible(true);
 							}
 							else{
-								JOptionPane.showMessageDialog(null,"Oups, quelques chose n'a pas fonctionner !\nVeulliez réessayé, SVP !");
+								JOptionPane.showMessageDialog(null,"Oups, quelques chose n'a pas fonctionner !\nVeulliez réessayé, SVP !", "Erreur de connexion", JOptionPane.WARNING_MESSAGE);
 								// JOptionPane.showMessageDialog(null,txtMotDePasse.getText().length()+" et " +date_emb.length());
 							}
 						}
@@ -209,6 +213,30 @@ public class GuiMainPanel extends JFrame {
 		});
 		btnAnnuler.setBounds(815, 455, 89, 23);
 		panelLog.add(btnAnnuler);
+		
+		JLabel lblEtatDuServeur = new JLabel("Etat du serveur : ");
+		lblEtatDuServeur.setBounds(115, 455, 95, 23);
+		panelLog.add(lblEtatDuServeur);
+		
+		String EtatAff = "OFF";
+		boolean EtatConnexion = InfosConnexionBDD.connexion;
+		if(EtatConnexion == true){
+			EtatAff = "ON";
+		}
+		
+		JLabel lblEtat = new JLabel(EtatAff);
+		lblEtat.setBounds(220, 455, 29, 23);
+		panelLog.add(lblEtat);
+		
+		JButton btnAbout = new JButton("A propos");
+		btnAbout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Infos infos = new Infos();
+				infos.setVisible(true);
+			}
+		});
+		btnAbout.setBounds(16, 455, 89, 23);
+		panelLog.add(btnAbout);
 		
 		panelMenu.setBounds(10, 11, 198, 489);
 		contentPane.add(panelMenu);
