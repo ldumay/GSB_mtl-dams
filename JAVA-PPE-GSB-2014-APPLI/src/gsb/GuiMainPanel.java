@@ -34,8 +34,11 @@ public class GuiMainPanel extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField txtIdentifiant;
-	public String Identifiant;
+	public static String Identifiant;
 	public String MotDePasse;
+	public static Object TypeUser;
+	public String TempTypeUser;
+	public String TempIDUserBDD;
 	private JTextField textField;
 	private JTextField textField_1;
 	private JTextField textField_2;
@@ -63,7 +66,11 @@ public class GuiMainPanel extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					// Fait appel à la JFrame principale
 					GuiMainPanel frame = new GuiMainPanel();
+					// Permet de centré la JFrame principale
+					frame.setLocationRelativeTo(null);
+					// Permet d'affiché la JFrame principale
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -97,8 +104,14 @@ public class GuiMainPanel extends JFrame {
 		panelMedicaments.setVisible(false);
 		panelPraticiens.setVisible(false);
 		panelAutresVisiteurs.setVisible(false);
-		panelLog.setVisible(true);
 		
+		String EtatAff = "OFF";
+		boolean EtatConnexion = InfosConnexionBDD.connexion;
+		if(EtatConnexion == true){
+			EtatAff = "ON";
+		}
+		
+		panelLog.setVisible(true);
 		panelLog.setBounds(10, 11, 914, 489);
 		contentPane.add(panelLog);
 		panelLog.setLayout(null);
@@ -108,7 +121,7 @@ public class GuiMainPanel extends JFrame {
 		lblConnexion.setBounds(798, 328, 106, 23);
 		panelLog.add(lblConnexion);
 		
-		JComboBox logType = new JComboBox();
+		final JComboBox logType = new JComboBox();
 		logType.setModel(new DefaultComboBoxModel(new String[] {"Choisir un type", "Visiteur", "Praticien"}));
 		logType.setBounds(764, 362, 140, 20);
 		panelLog.add(logType);
@@ -130,14 +143,33 @@ public class GuiMainPanel extends JFrame {
 		btnValider.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				// Récupération des Inputs
+				// Récupération des Inputs de Log
 				Identifiant = txtIdentifiant.getText();
 				MotDePasse = txtMotDePasse.getText();
+				TypeUser = logType.getSelectedItem();
+				
+				if(TypeUser == "Visiteur"){
+					TempTypeUser = "visiteur";
+					TempIDUserBDD = "VIS_NOM";
+				}
+				else if(TypeUser == "Praticien"){
+					TempTypeUser = "praticien";
+					TempIDUserBDD = "PRA_NOM";
+				}
+				else{
+					JOptionPane.showMessageDialog(null,"Veuillez choisir un type SVP", "Erreur de connexion", JOptionPane.WARNING_MESSAGE);
+				}
 				
 				// JOptionPane.showMessageDialog(null,"Nom : "+Identifiant+" & Mdp "+MotDePasse);
 				
-				if( (Identifiant == "") || (MotDePasse == "") ){
-					JOptionPane.showMessageDialog(null,"L'identifiant ou le mot de passe est invalide !");
+				if( (Identifiant == "") && (MotDePasse == "") ){
+					JOptionPane.showMessageDialog(null,"L'identifiant et le mot de passe n'ont pas été saisi invalide !");
+				}
+				else if( (Identifiant == "") && (MotDePasse != "") ){
+					JOptionPane.showMessageDialog(null,"L'identifiant n'a pas été saisi invalide !");
+				}
+				else if( (Identifiant != "") && (MotDePasse == "") ){
+					JOptionPane.showMessageDialog(null,"Le mot de passe n'a pas été saisi invalide !");
 				}
 				else{
 					String pilote = "com.mysql.jdbc.Driver";
@@ -156,7 +188,7 @@ public class GuiMainPanel extends JFrame {
 				
 						ResultSet resultat = null;
 						
-						resultat = stmt.executeQuery("SELECT * FROM visiteur WHERE VIS_NOM='"+ txtIdentifiant.getText() + "'");
+						resultat = stmt.executeQuery("SELECT * FROM " + TempTypeUser + " WHERE "+ TempIDUserBDD + "='"+ txtIdentifiant.getText() + "'");
 						if (resultat.next()) {
 							String idClient = resultat.getString("VIS_MATRICULE");
 							String date = resultat.getString("VIS_DATEEMBAUCHE");
@@ -188,6 +220,7 @@ public class GuiMainPanel extends JFrame {
 							// JOptionPane.showMessageDialog(null,"DONNEES : "+date_emb+" - "+mdp);
 							
 							if( mdp.equals(date_emb)){
+								// Passage en client connecter
 								panelLog.setVisible(false);
 								panelMenu.setVisible(true);
 								panelAccueil.setVisible(true);
@@ -196,6 +229,9 @@ public class GuiMainPanel extends JFrame {
 								JOptionPane.showMessageDialog(null,"Oups, le mot de passe n'est pas correcte ! \n\n Assurez-vous d'entrer les 3 premières lettres du mois \n dans le mot de passe, tel que : XX-XXX-XX", "Erreur de connexion", JOptionPane.WARNING_MESSAGE);
 								// JOptionPane.showMessageDialog(null,txtMotDePasse.getText().length()+" et " +date_emb.length());
 							}
+						}
+						else{
+							JOptionPane.showMessageDialog(null,"L'identifiant saisie ne fais pas parti des " + TypeUser + "s !");
 						}
 						}catch (SQLException e) {
 							e.printStackTrace();
@@ -227,12 +263,6 @@ public class GuiMainPanel extends JFrame {
 		JLabel lblEtatDuServeur = new JLabel("Etat du serveur : ");
 		lblEtatDuServeur.setBounds(115, 455, 95, 23);
 		panelLog.add(lblEtatDuServeur);
-		
-		String EtatAff = "OFF";
-		boolean EtatConnexion = InfosConnexionBDD.connexion;
-		if(EtatConnexion == true){
-			EtatAff = "ON";
-		}
 		
 		JLabel lblEtat = new JLabel(EtatAff);
 		lblEtat.setBounds(220, 455, 29, 23);
@@ -349,6 +379,14 @@ public class GuiMainPanel extends JFrame {
 		lblTitleHome.setFont(new Font("Tahoma", Font.BOLD, 15));
 		lblTitleHome.setBounds(10, 11, 690, 24);
 		panelAccueil.add(lblTitleHome);
+		
+		JLabel lblClientTitle = new JLabel("Bonjour,");
+		lblClientTitle.setBounds(10, 70, 138, 14);
+		panelAccueil.add(lblClientTitle);
+		
+		JLabel lblClientStatut = new JLabel("Vous \u00EAtes : ");
+		lblClientStatut.setBounds(10, 95, 138, 14);
+		panelAccueil.add(lblClientStatut);
 		
 		panelRapport.setBounds(214, 11, 710, 489);
 		contentPane.add(panelRapport);

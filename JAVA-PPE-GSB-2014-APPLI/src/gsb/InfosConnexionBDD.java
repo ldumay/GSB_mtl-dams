@@ -6,7 +6,9 @@ import java.sql.DriverManager;
 import javax.swing.JOptionPane;
 
 public class InfosConnexionBDD {
+	
 	public static boolean connexion = false;
+	
 	public static String[] InfosConnexionBDD(){
         String BDD = "gsb";
         String url = "jdbc:mysql://localhost:3306/" + BDD;
@@ -16,6 +18,7 @@ public class InfosConnexionBDD {
         String TotalInfosBDD[] = {BDD, url, user, passwd};
 		return TotalInfosBDD;
 	}
+	
 	public InfosConnexionBDD(){
 		System.out.println("# - - - - - - - - - - - - - - - - - - - - - - - - - - - #");
     	System.out.println("Connexion a la BDD");
