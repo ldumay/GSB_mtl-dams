@@ -27,14 +27,18 @@ import java.util.Scanner;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JFormattedTextField;
+import javax.swing.JPasswordField;
 
 public class GuiMainPanel extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField txtIdentifiant;
-	private JTextField txtMotDePasse;
-	public String Identifiant;
+	public static String Identifiant;
 	public String MotDePasse;
+	public static Object TypeUser;
+	public String TempTypeUser;
+	public String TempIDUserBDD;
 	private JTextField textField;
 	private JTextField textField_1;
 	private JTextField textField_2;
@@ -49,15 +53,24 @@ public class GuiMainPanel extends JFrame {
 	private JTextField txtPraticienCoef;
 	private JTextField txtPraticienTypeCode;
 	private JTextField txtPraticienCP;
+	private JPasswordField txtMotDePasse;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		// Vérification de la connexion avec la BDD
+		InfosConnexionBDD InfosConnexionBDD = new InfosConnexionBDD();
+		
+		// Démarrage de l'interface primaire de l'application
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					// Fait appel à la JFrame principale
 					GuiMainPanel frame = new GuiMainPanel();
+					// Permet de centré la JFrame principale
+					frame.setLocationRelativeTo(null);
+					// Permet d'affiché la JFrame principale
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -91,8 +104,14 @@ public class GuiMainPanel extends JFrame {
 		panelMedicaments.setVisible(false);
 		panelPraticiens.setVisible(false);
 		panelAutresVisiteurs.setVisible(false);
-		panelLog.setVisible(true);
 		
+		String EtatAff = "OFF";
+		boolean EtatConnexion = InfosConnexionBDD.connexion;
+		if(EtatConnexion == true){
+			EtatAff = "ON";
+		}
+		
+		panelLog.setVisible(true);
 		panelLog.setBounds(10, 11, 914, 489);
 		contentPane.add(panelLog);
 		panelLog.setLayout(null);
@@ -102,7 +121,7 @@ public class GuiMainPanel extends JFrame {
 		lblConnexion.setBounds(798, 328, 106, 23);
 		panelLog.add(lblConnexion);
 		
-		JComboBox logType = new JComboBox();
+		final JComboBox logType = new JComboBox();
 		logType.setModel(new DefaultComboBoxModel(new String[] {"Choisir un type", "Visiteur", "Praticien"}));
 		logType.setBounds(764, 362, 140, 20);
 		panelLog.add(logType);
@@ -120,34 +139,56 @@ public class GuiMainPanel extends JFrame {
 		panelLog.add(txtIdentifiant);
 		txtIdentifiant.setColumns(10);
 		
-		txtMotDePasse = new JTextField();
-		txtMotDePasse.setBounds(815, 424, 89, 20);
-		panelLog.add(txtMotDePasse);
-		txtMotDePasse.setColumns(10);
-		
 		JButton btnValider = new JButton("Valider");
 		btnValider.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				// Récupération des Inputs
+				// Récupération des Inputs de Log
 				Identifiant = txtIdentifiant.getText();
 				MotDePasse = txtMotDePasse.getText();
+				TypeUser = logType.getSelectedItem();
+				
+				if(TypeUser == "Visiteur"){
+					TempTypeUser = "visiteur";
+					TempIDUserBDD = "VIS_NOM";
+				}
+				else if(TypeUser == "Praticien"){
+					TempTypeUser = "praticien";
+					TempIDUserBDD = "PRA_NOM";
+				}
+				else{
+					JOptionPane.showMessageDialog(null,"Veuillez choisir un type SVP", "Erreur de connexion", JOptionPane.WARNING_MESSAGE);
+				}
 				
 				// JOptionPane.showMessageDialog(null,"Nom : "+Identifiant+" & Mdp "+MotDePasse);
 				
-				if( (Identifiant == "") || (MotDePasse == "") ){
-					JOptionPane.showMessageDialog(null,"L'identifiant ou le mot de passe est invalide !");
+				if( (Identifiant == "") && (MotDePasse == "") ){
+					JOptionPane.showMessageDialog(null,"L'identifiant et le mot de passe n'ont pas été saisi invalide !");
+				}
+				else if( (Identifiant == "") && (MotDePasse != "") ){
+					JOptionPane.showMessageDialog(null,"L'identifiant n'a pas été saisi invalide !");
+				}
+				else if( (Identifiant != "") && (MotDePasse == "") ){
+					JOptionPane.showMessageDialog(null,"Le mot de passe n'a pas été saisi invalide !");
 				}
 				else{
 					String pilote = "com.mysql.jdbc.Driver";
 					try {
 						Class.forName(pilote);
-						Connection con = DriverManager.getConnection("jdbc:mysql://localhost/gsb","root","");
+						
+						// Méthode de récupération des information de connexion à la BDD
+						String[] infosConnexionBDD = InfosConnexionBDD.InfosConnexionBDD();
+						String BDD = infosConnexionBDD[0];
+				        String url = infosConnexionBDD[1];
+				        String user = infosConnexionBDD[2];
+				        String passwd = infosConnexionBDD[3];
+				        Connection con = DriverManager.getConnection(url, user, passwd);
+				        
 						Statement stmt = con.createStatement();
 				
 						ResultSet resultat = null;
 						
-						resultat = stmt.executeQuery("SELECT * FROM visiteur WHERE VIS_NOM='"+ txtIdentifiant.getText() + "'");
+						resultat = stmt.executeQuery("SELECT * FROM " + TempTypeUser + " WHERE "+ TempIDUserBDD + "='"+ txtIdentifiant.getText() + "'");
 						if (resultat.next()) {
 							String idClient = resultat.getString("VIS_MATRICULE");
 							String date = resultat.getString("VIS_DATEEMBAUCHE");
@@ -179,14 +220,18 @@ public class GuiMainPanel extends JFrame {
 							// JOptionPane.showMessageDialog(null,"DONNEES : "+date_emb+" - "+mdp);
 							
 							if( mdp.equals(date_emb)){
+								// Passage en client connecter
 								panelLog.setVisible(false);
 								panelMenu.setVisible(true);
 								panelAccueil.setVisible(true);
 							}
 							else{
-								JOptionPane.showMessageDialog(null,"Oups, quelques chose n'a pas fonctionner !\nVeulliez réessayé, SVP !");
+								JOptionPane.showMessageDialog(null,"Oups, le mot de passe n'est pas correcte ! \n\n Assurez-vous d'entrer les 3 premières lettres du mois \n dans le mot de passe, tel que : XX-XXX-XX", "Erreur de connexion", JOptionPane.WARNING_MESSAGE);
 								// JOptionPane.showMessageDialog(null,txtMotDePasse.getText().length()+" et " +date_emb.length());
 							}
+						}
+						else{
+							JOptionPane.showMessageDialog(null,"L'identifiant saisie ne fais pas parti des " + TypeUser + "s !");
 						}
 						}catch (SQLException e) {
 							e.printStackTrace();
@@ -196,19 +241,42 @@ public class GuiMainPanel extends JFrame {
 					}
 			}
 		});
+		
+		txtMotDePasse = new JPasswordField();
+		txtMotDePasse.setToolTipText("");
+		txtMotDePasse.setBounds(815, 424, 89, 20);
+		panelLog.add(txtMotDePasse);
 		btnValider.setBounds(716, 455, 89, 23);
 		panelLog.add(btnValider);
 		
 		JButton btnAnnuler = new JButton("Annuler");
 		btnAnnuler.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// Modifications des Input
+				// Modifications des Input de Log
 				txtIdentifiant.setText("");
 				txtMotDePasse.setText("");
 			}
 		});
 		btnAnnuler.setBounds(815, 455, 89, 23);
 		panelLog.add(btnAnnuler);
+		
+		JLabel lblEtatDuServeur = new JLabel("Etat du serveur : ");
+		lblEtatDuServeur.setBounds(115, 455, 95, 23);
+		panelLog.add(lblEtatDuServeur);
+		
+		JLabel lblEtat = new JLabel(EtatAff);
+		lblEtat.setBounds(220, 455, 29, 23);
+		panelLog.add(lblEtat);
+		
+		JButton btnAbout = new JButton("A propos");
+		btnAbout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Infos infos = new Infos();
+				infos.setVisible(true);
+			}
+		});
+		btnAbout.setBounds(16, 455, 89, 23);
+		panelLog.add(btnAbout);
 		
 		panelMenu.setBounds(10, 11, 198, 489);
 		contentPane.add(panelMenu);
@@ -287,6 +355,10 @@ public class GuiMainPanel extends JFrame {
 		JButton btnLogOut = new JButton("D\u00E9connexion");
 		btnLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Modifications des Input de Log
+				txtIdentifiant.setText("");
+				txtMotDePasse.setText("");
+				
 				panelMenu.setVisible(false);
 				panelRapport.setVisible(false);
 				panelAccueil.setVisible(false);
@@ -307,6 +379,14 @@ public class GuiMainPanel extends JFrame {
 		lblTitleHome.setFont(new Font("Tahoma", Font.BOLD, 15));
 		lblTitleHome.setBounds(10, 11, 690, 24);
 		panelAccueil.add(lblTitleHome);
+		
+		JLabel lblClientTitle = new JLabel("Bonjour,");
+		lblClientTitle.setBounds(10, 70, 138, 14);
+		panelAccueil.add(lblClientTitle);
+		
+		JLabel lblClientStatut = new JLabel("Vous \u00EAtes : ");
+		lblClientStatut.setBounds(10, 95, 138, 14);
+		panelAccueil.add(lblClientStatut);
 		
 		panelRapport.setBounds(214, 11, 710, 489);
 		contentPane.add(panelRapport);
